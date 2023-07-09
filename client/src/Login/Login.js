@@ -64,7 +64,10 @@ function Login() {
                 toast.success("Login Successful");
                 const token = response.data.token;
                 window.localStorage.setItem("token",token);
-                window.location.href="/dashboard";
+                // window.location.href="/dashboard";
+                // window.location.reload();
+                window.location.replace("/dashboard");
+
             }
             else {
                 toast.error(response.data.message);

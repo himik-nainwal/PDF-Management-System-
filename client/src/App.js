@@ -10,8 +10,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [token, setToken]=useState(null);
+  const [user, setUser] = useState();
+  const [token, setToken]=useState("");
   useEffect(() => {
     setToken(localStorage.getItem('token'));
     async function fetchUserDetails() {
@@ -34,14 +34,14 @@ function App() {
         setUser(null);
       }
     }
-    if (token) {
+    if (!token) {
       fetchUserDetails(token);
     } else if (
       window.location.pathname !=="/" && 
       window.location.pathname !=="/forgotpass") {
       window.location.href ="/";
     console.log("aaaaa")}
-  }, [token]);
+  }, []);
   console.log("This is ",user);
   return (
     <>
@@ -52,7 +52,7 @@ function App() {
             <Route path="forgotpass" element ={<ForgotPass />} />
           </>
         )}
-       {user && (<>
+       {token && (<>
        <Route path="/dashboard" element={<Dashboard/>}/>
        </>
        )}
