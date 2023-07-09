@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Login from './Login/Login';
 import ForgotPass from './Login/Forgotpassword';
-import OTP from './Login/OTP';
 import Dashboard from './Dashboard/Dashboard';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -36,7 +37,6 @@ function App() {
       fetchUserDetails(token);
     } else if (
       window.location.pathname !=="/" && 
-      window.location.pathname !=="/otp" && 
       window.location.pathname !=="/forgotpass") 
       window.location.href ="/";
   }, []);
@@ -47,7 +47,6 @@ function App() {
     {!localStorage.getItem("token") && (
           <>
             <Route path="/" element={<Login />} />
-            <Route path="/otp" element={<OTP />} />
             <Route path="forgotpass" element ={<ForgotPass />} />
           </>
         )}
@@ -62,6 +61,7 @@ function App() {
 								/>
 
     </Routes>
+    <ToastContainer />
     </>
   );
 }
