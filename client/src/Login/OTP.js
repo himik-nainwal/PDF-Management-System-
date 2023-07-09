@@ -1,26 +1,36 @@
-import React, { useState, useEffect } from "react";
-// import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import axios from "axios" ;
+
+import * as url from "../URL";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-const OTPModal = () => {
+const OTPModal = ({email}) => {
     const [isOpen, setIsOpen] = useState(true);
     const [otp, setOtp] = useState("");
-    const [email, setEmail] = useState(window.localStorage.getItem("email"));
     const openModal = () => setIsOpen(true);
     const closeModal = () => setIsOpen(false);
 
     const handleOtpChange = (e) => {
         setOtp(e.target.value);
     };
-    const handleVerifyOtp = (e) => {
-        e.preventDefault();
-    };
 
-    const handleOtpSubmit = (event) => {
+    const handleOtpSubmit = async (event) => {
         event.preventDefault();
-        console.log(otp)
-    };
-
+    
+        try {
+          const response = await axios.post(url.API_URL+'auth/verifyOTP', { email,otp });
+          if (response.data.success) {
+            const token = response.data.token;
+            toast.success('OTP verification successful');
+            console.log('Token:', token);
+            window.location.href = "/dashboard";
+        } else {
+            toast.error(response.data.message);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
     return (
         <>
             {isOpen && (

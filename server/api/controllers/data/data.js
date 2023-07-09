@@ -1,6 +1,6 @@
 const User = require("../../../models/user/user");
 module.exports = {
-    async userskadata(req, res) {
+    async dataofusers(req, res) {
       try {
         const userId = req.userId;
   

@@ -12,7 +12,7 @@ module.exports = {
             const {name , email , password }=req.body;
                 const user = await User.findOne({email:email.toLowerCase()});
                 if(user)
-                return res.status(401).json({ message: "Email already registered" });
+                return res.json({ message: "Email already registered" });
 
                 const otp= generateOTP();
 
@@ -42,7 +42,7 @@ module.exports = {
             const { email, otp } = req.body;
             const user = await User.findOne({ email, verificationToken: otp });
             if (!user) {
-                return res.status(401).json({ message: "Invalid OTP" });
+                return res.json({ message: "Invalid OTP" });
             }
             user.verificationToken = null; // Set verificationToken to null
             user.isVerified = true; // Set isVerified to true
@@ -62,16 +62,13 @@ module.exports = {
 
             const user = await User.findOne({ email });
             if (!user) {
-            return res.status(401).json({ message: "Invalid email or password" });
+            return res.json({ message: "Invalid email or password" });
             }
 
-            // Compare the provided password with the stored hashed password
             const isPasswordMatch = await bcrypt.compare(password, user.password);
             if (!isPasswordMatch) {
-                return res.status(401).json({ message: "Invalid email or password" });
+                return res.json({ message: "Invalid email or password" });
             }
-
-            // Generate a JWT token for authentication
             const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY, { expiresIn: '1h' });
 
             return res.json({ success: true, message: "Login successful", token });

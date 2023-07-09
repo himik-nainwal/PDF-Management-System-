@@ -1,5 +1,5 @@
 const router = require("express").Router();
 const dataRouter = require("../../controllers/data/data");
-
-router.get('/userskadata', authenticateToken, dataRouter.userskadata);
+const authenticateToken = require("../../middlewares/authMiddleware");
+router.post('/dataofusers', authenticateToken, dataRouter.dataofusers);
 module.exports = router;

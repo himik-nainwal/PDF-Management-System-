@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import OTPModal from "./OTP";
-
+import axios from 'axios';
+import * as url from "../URL";
 function Login() {
     const [email, setEmail] = useState("");
+    const [name , setName] = useState("");
     const [isSignup, setIsSignup] = useState(false);
     const [password, setPassword] = useState("");
     const [confPass, setConfPass] = useState("");
@@ -21,12 +23,15 @@ function Login() {
     const handleChangePass = (e) => {
         setPassword(e.target.value);
     };
+    const handlename=(e)=>{
+        setName(e.target.value);
+    }
 
     const switchMode = (e) => {
         setIsSignup(!isSignup);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (isSignup) {
@@ -36,11 +41,35 @@ function Login() {
                 });
                 return;
             } else {
-                setOpenModal(true);
-                console.log("Signup Done! OTP Sent!");
+                const response = await axios.post(url.API_URL+'auth/signup',{
+                    name,
+                    email,
+                    password
+                });
+                if(response.data.success){
+                    setOpenModal(true);
+                    toast.success("Signup Done! OTP Sent!");
+                    
+                }
+                else {
+                   toast.error(response.data.message);
+                  }
             }
         } else {
-            console.log("Login done!");
+            const response = await axios.post(url.API_URL+'auth/login',{
+                email,
+                password
+            });
+            if(response.data.success){
+                toast.success("Login Successful");
+                const token = response.data.token;
+                window.localStorage.setItem("token",token);
+                window.location.href="/dashboard";
+            }
+            else {
+                toast.error(response.data.message);
+               }
+            
         }
     };
 
@@ -50,12 +79,24 @@ function Login() {
 
     return (
         <div className="bg-bitter-sweet flex flex-col justify-center items-center w-screen h-screen font-poppins">
-            {openModal && <OTPModal status={openModal} />}
+            {openModal && <OTPModal email={email} status={openModal} />}
             <div className="p-10 mx-auto md:w-full md:max-w-md">
                 <div className="bg-white shadow-2xl w-full rounded-lg divide-y divide-gray-200 border-grey">
                     <h1 className="text-3xl flex justify-center p-4">Login</h1>
                     <form className="p-5" onSubmit={handleSubmit}>
-                       
+                    {isSignup && (
+                            <>
+                                <label className="font-semibold text-sm text-gray-600 pb-1 block">
+                                    Full Name 
+                                </label>
+                                <input
+                                    type="text"
+                                    onChange={handlename}
+                                    value={name}
+                                    className="border shadow-xl rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full"
+                                />
+                            </>
+                        )}
                         <label className="font-semibold text-sm text-gray-600 pb-1 block">
                             Email
                         </label>
