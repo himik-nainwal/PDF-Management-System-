@@ -42,7 +42,7 @@ module.exports = {
             const { email, otp } = req.body;
             const user = await User.findOne({ email, verificationToken: otp });
             if (!user) {
-                return res.json({ message: "Invalid OTP" });
+                return res.json({ message: "Invalid OTP Check Again" });
             }
             user.verificationToken = null; // Set verificationToken to null
             user.isVerified = true; // Set isVerified to true
