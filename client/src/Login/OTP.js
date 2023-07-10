@@ -9,7 +9,7 @@ const OTPModal = ({email}) => {
     const [otp, setOtp] = useState("");
     const openModal = () => setIsOpen(true);
     const closeModal = () => setIsOpen(false);
-
+    console.log(openModal,closeModal); 
     const handleOtpChange = (e) => {
         setOtp(e.target.value);
     };
