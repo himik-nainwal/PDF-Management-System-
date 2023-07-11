@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import OTPModal from "./OTP";
 import axios from 'axios';
-import * as url from "../Url";
+import * as url from "../URL";
 function Login() {
     const [email, setEmail] = useState("");
     const [name , setName] = useState("");
