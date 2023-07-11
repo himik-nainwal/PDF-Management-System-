@@ -1,4 +1,5 @@
 import './App.css';
+
 import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import * as URL from "./URL";
@@ -28,9 +29,10 @@ function App() {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("aaaaa", response);
+        // console.log("aaaaa", response);
         if (response.data.success) {
           const userDetails = response.data.user;
+          window.localStorage.setItem('user',JSON.stringify(response.data.user._id))
           setUser(userDetails);
         } else {
           console.log(response.data.message);
