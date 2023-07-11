@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Types } from "mongoose";
 import * as url from "../Url"; 
 import CardList from "../CardList/CardList";
 import firebase from "firebase/compat/app";
@@ -83,6 +82,7 @@ const Dashboard = () => {
     }
   };
   const handleLogout = () => {
+    setuID("")
     localStorage.clear();
     window.location.reload();
   };
