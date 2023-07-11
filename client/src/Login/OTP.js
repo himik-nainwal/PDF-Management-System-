@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios" ;
 
-import * as url from "../Url";
+import * as url from "../URL";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const OTPModal = ({email}) => {
