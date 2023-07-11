@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import * as url from "../Url"; 
+import * as url from "../URL"; 
 import CardList from "../CardList/CardList";
 import firebase from "firebase/compat/app";
 import "firebase/storage";
