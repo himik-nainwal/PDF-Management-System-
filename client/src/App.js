@@ -2,7 +2,7 @@ import './App.css';
 
 import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import * as URL from "./URL";
+import * as URL from "./Url";
 import axios from 'axios';
 import Login from './Login/Login';
 import ForgotPass from './Login/Forgotpassword';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Types } from "mongoose";
-import * as url from "../URL"; 
+import * as url from "../Url"; 
 import CardList from "../CardList/CardList";
 import firebase from "firebase/compat/app";
 import "firebase/storage";
@@ -61,12 +61,12 @@ const Dashboard = () => {
         const uploadTaskSnapshot = await fileRef.put(selectedFile);
         console.log('File uploaded successfully!');
         toast.success('File uploaded successfully!');
-  
+        const userID = uID.replace(/"/g, '');
         // Save file details in MongoDB
         const response = await axios.post(url.API_URL + 'files/uploadFile', {
           fileName: selectedFile.name,
           filePath: uploadTaskSnapshot.ref.fullPath,
-          uploadedBy: localStorage.getItem("user")
+          uploadedBy: userID
         });
         console.log("aaaaa",response);
         if (response.status === 201) {
