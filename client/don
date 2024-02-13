@@ -1,0 +1,33 @@
+from pyad import *
+import pyad.adquery
+
+def get_rgs_for_ad_groups(ad_groups):
+    ad_group_rgs = {}
+
+    pyad.set_defaults(ldap_server="YOUR_LDAP_SERVER")
+    ad = pyad.adobject.ADObject.from_dn("YOUR_BASE_DN")
+    
+    query = pyad.adquery.ADQuery()
+    query.execute_query(
+        attributes=["member"],
+        where_clause="objectClass='group'"
+    )
+
+    for row in query.get_results():
+        ad_group_dn = row["distinguishedName"]
+        ad_group_name = row["sAMAccountName"]
+        if ad_group_name in ad_groups:
+            ad_group_rgs[ad_group_name] = []
+            for member in row["member"]:
+                if "ResourceGroups" in member:
+                    rg = member.split(",")[0].split("=")[1]
+                    ad_group_rgs[ad_group_name].append(rg)
+
+    return ad_group_rgs
+
+# Example usage:
+ad_groups = ["AD_GROUP_1", "AD_GROUP_2", "AD_GROUP_3"]
+ad_group_rgs = get_rgs_for_ad_groups(ad_groups)
+
+for ad_group, rgs in ad_group_rgs.items():
+    print(f"{ad_group}: {', '.join(rgs)}")
