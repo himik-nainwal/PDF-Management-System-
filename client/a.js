@@ -7,7 +7,59 @@ const TableGrid = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+def format_email_message(report_data):
+    message = []
 
+    # Group reports by type
+    grouped_reports = {}
+    for report in report_data:
+        report_type = report.get('report_type')
+        if report_type not in grouped_reports:
+            grouped_reports[report_type] = []
+        grouped_reports[report_type].append(report)
+
+    # Format message for each report type
+    for report_type, reports in grouped_reports.items():
+        message.append(f"Specified fields under {report_type.capitalize()}:")
+        for report in reports:
+            report_name = report.get('report_name')
+            frequency = report.get('report_frequency')
+            open_fields = report.get('open_fields', [])
+
+            if open_fields:
+                message.append(f"\nReport: {report_name}")
+                message.append(f"Frequency: {frequency}")
+                message.append(f"Open Fields: {', '.join(open_fields)}")
+                message.append("-" * 40)
+
+    # Join the message parts with a new line
+    final_message = "\n".join(message)
+    return final_message
+
+# Example usage:
+report_data = [
+    {
+        'report_name': 'Sales Analysis',
+        'report_type': 'PowerBI',
+        'report_frequency': 'Weekly',
+        'open_fields': ['Region', 'Product']
+    },
+    {
+        'report_name': 'Inventory Status',
+        'report_type': 'PowerBI',
+        'report_frequency': 'Monthly',
+        'open_fields': ['Warehouse', 'Stock Level']
+    },
+    {
+        'report_name': 'Marketing Overview',
+        'report_type': 'Excel',
+        'report_frequency': 'Quarterly',
+        'open_fields': ['Campaign', 'Budget']
+    }
+]
+
+email_message = format_email_message(report_data)
+print(email_message)
   // Dummy Data
   const data = [
     {
