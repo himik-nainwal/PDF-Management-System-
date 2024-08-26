@@ -1,252 +1,133 @@
 import React, { useState } from 'react';
-import { FaEye, FaTrash, FaEdit } from 'react-icons/fa';
-import Pagination from 'react-bootstrap/Pagination';
 
-const TableGrid = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedAccount, setSelectedAccount] = useState(null);
-  const [showDialog, setShowDialog] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-def format_email_message(report_data):
-    message = []
+const AddAccountPage = () => {
+  const [accountNumber, setAccountNumber] = useState(''); // Replace with random generation logic
+  const [adminCode, setAdminCode] = useState('');
+  const [date, setDate] = useState(new Date().toLocaleDateString());
+  const [availableFirms, setAvailableFirms] = useState(['Firm A', 'Firm B', 'Firm C', 'Firm D', 'Firm E']);
+  const [attachedFirms, setAttachedFirms] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedAvailableFirms, setSelectedAvailableFirms] = useState([]);
+  const [selectedAttachedFirms, setSelectedAttachedFirms] = useState([]);
 
-    # Group reports by type
-    grouped_reports = {}
-    for report in report_data:
-        report_type = report.get('report_type')
-        if report_type not in grouped_reports:
-            grouped_reports[report_type] = []
-        grouped_reports[report_type].append(report)
-
-    # Format message for each report type
-    for report_type, reports in grouped_reports.items():
-        message.append(f"Specified fields under {report_type.capitalize()}:")
-        for report in reports:
-            report_name = report.get('report_name')
-            frequency = report.get('report_frequency')
-            open_fields = report.get('open_fields', [])
-
-            if open_fields:
-                message.append(f"\nReport: {report_name}")
-                message.append(f"Frequency: {frequency}")
-                message.append(f"Open Fields: {', '.join(open_fields)}")
-                message.append("-" * 40)
-
-    # Join the message parts with a new line
-    final_message = "\n".join(message)
-    return final_message
-
-# Example usage:
-report_data = [
-    {
-        'report_name': 'Sales Analysis',
-        'report_type': 'PowerBI',
-        'report_frequency': 'Weekly',
-        'open_fields': ['Region', 'Product']
-    },
-    {
-        'report_name': 'Inventory Status',
-        'report_type': 'PowerBI',
-        'report_frequency': 'Monthly',
-        'open_fields': ['Warehouse', 'Stock Level']
-    },
-    {
-        'report_name': 'Marketing Overview',
-        'report_type': 'Excel',
-        'report_frequency': 'Quarterly',
-        'open_fields': ['Campaign', 'Budget']
-    }
-]
-
-email_message = format_email_message(report_data)
-print(email_message)
-  // Dummy Data
-  const data = [
-    {
-      accountNumber: 'ACC123',
-      firms: ['Firm A', 'Firm B', 'Firm C'],
-      aggregators: ['Aggregator A', 'Aggregator B', 'Aggregator C'],
-    },
-    {
-      accountNumber: 'ACC456',
-      firms: ['Firm D', 'Firm E'],
-      aggregators: ['Aggregator D', 'Aggregator E'],
-    },
-    {
-      accountNumber: 'ACC789',
-      firms: ['Firm F', 'Firm G'],
-      aggregators: ['Aggregator F', 'Aggregator G'],
-    },
-  ];
-
-  // Filtered data based on search query
-  const filteredData = data.filter((item) =>
-    item.accountNumber.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const itemsPerPage = 10;
-  const totalRecords = filteredData.length;
-  const totalPages = Math.ceil(totalRecords / itemsPerPage);
-  const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  const handleViewFirms = (account) => {
-    setSelectedAccount(account);
-    setShowDialog(true);
+  // Function to move selected firms from available to attached
+  const attachFirms = () => {
+    setAttachedFirms([...attachedFirms, ...selectedAvailableFirms]);
+    setAvailableFirms(availableFirms.filter((firm) => !selectedAvailableFirms.includes(firm)));
+    setSelectedAvailableFirms([]);
   };
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+  // Function to move selected firms from attached to available
+  const removeFirms = () => {
+    setAvailableFirms([...availableFirms, ...selectedAttachedFirms]);
+    setAttachedFirms(attachedFirms.filter((firm) => !selectedAttachedFirms.includes(firm)));
+    setSelectedAttachedFirms([]);
+  };
+
+  // Filter available firms based on search term
+  const filteredFirms = availableFirms.filter((firm) =>
+    firm.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleClear = () => {
+    setAccountNumber('');
+    setAdminCode('');
+    setAttachedFirms([]);
+    setAvailableFirms(['Firm A', 'Firm B', 'Firm C', 'Firm D', 'Firm E']);
+    setSearchTerm('');
+  };
+
+  const handleSubmit = () => {
+    // Submit logic here
+    console.log({
+      accountNumber,
+      adminCode,
+      date,
+      attachedFirms,
+    });
   };
 
   return (
-    <div style={{ flexGrow: 1, padding: '20px' }}>
-      <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>
-        Total Records: {totalRecords}
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+    <div style={{ padding: '20px', maxWidth: '700px', margin: '0 auto', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+      <h2 style={{ textAlign: 'center', color: '#003C68' }}>Add Account</h2>
+      
+      <div style={{ marginBottom: '15px' }}>
+        <label>Account Number: </label>
         <input
           type="text"
-          placeholder="Search by Account Number..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{
-            padding: '8px',
-            width: 'calc(100% - 120px)',
-            border: '1px solid #ddd',
-            borderRadius: '4px'
-          }}
+          value={accountNumber}
+          onChange={(e) => setAccountNumber(e.target.value)}
+          style={{ width: '100%', padding: '8px', margin: '5px 0', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
         />
-        <button style={{
-          padding: '8px 12px',
-          backgroundColor: '#003C68',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}>Add Account</button>
       </div>
-      <table style={{
-        width: '100%',
-        borderCollapse: 'collapse',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-      }}>
-        <thead>
-          <tr>
-            <th style={{ borderBottom: '1px solid #ddd', padding: '10px', backgroundColor: '#f0f0f0' }}>Account Number</th>
-            <th style={{ borderBottom: '1px solid #ddd', padding: '10px', backgroundColor: '#f0f0f0' }}>Number of Firms</th>
-            <th style={{ borderBottom: '1px solid #ddd', padding: '10px', backgroundColor: '#f0f0f0' }}>View Firms</th>
-            <th style={{ borderBottom: '1px solid #ddd', padding: '10px', backgroundColor: '#f0f0f0' }}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedData.length > 0 ? (
-            paginatedData.map((item, index) => (
-              <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9' }}>
-                <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{item.accountNumber}</td>
-                <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{item.firms.length}</td>
-                <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                  <button onClick={() => handleViewFirms(item)} style={{ cursor: 'pointer', color: '#003C68', textDecoration: 'underline', background: 'none', border: 'none' }}>View Firms</button>
-                </td>
-                <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                  <FaEye style={{ marginRight: '10px', cursor: 'pointer', color: '#003C68' }} title="View" />
-                  <FaEdit style={{ marginRight: '10px', cursor: 'pointer', color: '#003C68' }} title="Edit" />
-                  <FaTrash style={{ cursor: 'pointer', color: '#003C68' }} title="Delete" />
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4" style={{ textAlign: 'center', padding: '20px', fontSize: '16px', color: '#333' }}>
-                No records found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
 
-      {/* Pagination */}
-      {totalRecords > itemsPerPage && (
-        <Pagination style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
-          <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
-          <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
-          {Array.from({ length: totalPages }, (_, i) => (
-            <Pagination.Item
-              key={i + 1}
-              active={i + 1 === currentPage}
-              onClick={() => handlePageChange(i + 1)}
-            >
-              {i + 1}
-            </Pagination.Item>
-          ))}
-          <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
-          <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
-        </Pagination>
-      )}
-
-      {/* Dialog Box */}
-      {showDialog && selectedAccount && (
-        <DialogBox
-          firms={selectedAccount.firms}
-          aggregators={selectedAccount.aggregators}
-          onClose={() => setShowDialog(false)}
+      <div style={{ marginBottom: '15px' }}>
+        <label>Admin Code: </label>
+        <input
+          type="text"
+          value={adminCode}
+          onChange={(e) => setAdminCode(e.target.value)}
+          style={{ width: '100%', padding: '8px', margin: '5px 0', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
         />
-      )}
-    </div>
-  );
-};
+      </div>
 
-// DialogBox Component
-const DialogBox = ({ firms = [], aggregators = [], onClose }) => {
-  return (
-    <div style={{
-      position: 'fixed',
-      top: '0',
-      left: '0',
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      zIndex: '1',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '20px',
-        borderRadius: '8px',
-        maxWidth: '500px',
-        width: '100%',
-      }}>
-        <h2>Firms under Account</h2>
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
-          <thead>
-            <tr>
-              <th style={{ borderBottom: '1px solid #ddd', padding: '10px' }}>Firm Name</th>
-              <th style={{ borderBottom: '1px solid #ddd', padding: '10px' }}>Aggregator</th>
-            </tr>
-          </thead>
-          <tbody>
-            {firms.map((firm, index) => (
-              <tr key={index}>
-                <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{firm}</td>
-                <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{aggregators[index]}</td>
-              </tr>
+      <div style={{ marginBottom: '15px' }}>
+        <label>Date: </label>
+        <input type="text" value={date} readOnly style={{ width: '100%', padding: '8px', margin: '5px 0', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }} />
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
+        <div style={{ width: '40%', backgroundColor: '#fff', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}>
+          <h3 style={{ marginBottom: '10px', fontSize: '16px' }}>Available Firms</h3>
+          <input
+            type="text"
+            placeholder="Search firms..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ width: '100%', padding: '8px', marginBottom: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+          />
+          <select
+            multiple
+            style={{ width: '100%', height: '150px', borderRadius: '4px', border: '1px solid #ccc', padding: '8px' }}
+            value={selectedAvailableFirms}
+            onChange={(e) => setSelectedAvailableFirms(Array.from(e.target.selectedOptions, option => option.value))}
+          >
+            {filteredFirms.map((firm, index) => (
+              <option key={index} value={firm}>
+                {firm}
+              </option>
             ))}
-          </tbody>
-        </table>
-        <button onClick={onClose} style={{
-          padding: '10px 15px',
-          backgroundColor: '#003C68',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          display: 'block',
-          marginLeft: 'auto'
-        }}>Close</button>
+          </select>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '0 10px' }}>
+          <button onClick={attachFirms} style={{ marginBottom: '10px', padding: '6px 12px', backgroundColor: '#003C68', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>→</button>
+          <button onClick={removeFirms} style={{ padding: '6px 12px', backgroundColor: '#003C68', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>←</button>
+        </div>
+
+        <div style={{ width: '40%', backgroundColor: '#fff', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}>
+          <h3 style={{ marginBottom: '10px', fontSize: '16px' }}>Attached Firms</h3>
+          <select
+            multiple
+            style={{ width: '100%', height: '150px', borderRadius: '4px', border: '1px solid #ccc', padding: '8px' }}
+            value={selectedAttachedFirms}
+            onChange={(e) => setSelectedAttachedFirms(Array.from(e.target.selectedOptions, option => option.value))}
+          >
+            {attachedFirms.map((firm, index) => (
+              <option key={index} value={firm}>
+                {firm}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+        <button onClick={handleClear} style={{ padding: '10px 20px', backgroundColor: '#003C68', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Clear</button>
+        <button onClick={handleSubmit} style={{ padding: '10px 20px', backgroundColor: '#003C68', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Add Account</button>
       </div>
     </div>
   );
 };
 
-export default TableGrid;
+export default AddAccountPage;
