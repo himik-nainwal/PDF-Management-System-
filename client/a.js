@@ -1,3 +1,52 @@
+try:
+    fields_to_check = ['rpt_freq_ed', 'rpt_etg_ed']
+    messages = {}
+
+    for record in dashboard_inventory:
+        report_type = record.get('reporttype_cd')
+        platform_name = record.get('platform_name')
+
+        if report_type not in messages:
+            messages[report_type] = {}
+
+        if platform_name not in messages[report_type]:
+            messages[report_type][platform_name] = []
+
+        not_specified_fields = [field for field in fields_to_check if record.get(field) == 'Not specified']
+        if not_specified_fields:
+            report_name = record.get('rpt_nm')
+            message = f"{len(messages[report_type][platform_name]) + 1}. {report_name}\n   - Missing Fields: {', '.join(not_specified_fields)}"
+            messages[report_type][platform_name].append(message)
+
+    final_message = []
+    for report_type, platforms in messages.items():
+        report_type_total_count = sum(len(reports) for reports in platforms.values())
+        report_type_header = f"{report_type} Reports ({report_type_total_count})"
+        final_message.append(report_type_header)
+        final_message.append("-------------------------")
+
+        for platform_name, reports in platforms.items():
+            platform_total_count = len(reports)
+            platform_header = f"Platform: {platform_name} ({platform_total_count})"
+            final_message.append(platform_header)
+            final_message.append("\n".join(reports))
+            final_message.append("")  # Extra line between platforms
+
+        final_message.append("-------------------------")
+
+    if final_message:
+        return "\n".join(final_message)
+    else:
+        return "All fields are specified for the given reports."
+
+except Exception as e:
+    # Uncomment and configure logger if needed
+    # logger.error(e)
+    raise Exception("Error from publish_sns_email: " + str(e))
+
+
+
+
 import React, { useState } from 'react';
 
 const AddAccountPage = () => {
