@@ -1,59 +1,16 @@
-try:
-    fields_to_check = ['rpt_freq_ed', 'rpt_etg_ed']
-    messages = {}
-
-    for record in dashboard_inventory:
-        report_type = record.get('reporttype_cd')
-        platform_name = record.get('platform_name')
-
-        if report_type not in messages:
-            messages[report_type] = {}
-
-        if platform_name not in messages[report_type]:
-            messages[report_type][platform_name] = []
-
-        not_specified_fields = [field for field in fields_to_check if record.get(field) == 'Not specified']
-        if not_specified_fields:
-            report_name = record.get('rpt_nm')
-            message = f"{len(messages[report_type][platform_name]) + 1}. {report_name}\n   - Missing Fields: {', '.join(not_specified_fields)}"
-            messages[report_type][platform_name].append(message)
-
-    final_message = []
-    for report_type, platforms in messages.items():
-        report_type_total_count = sum(len(reports) for reports in platforms.values())
-        report_type_header = f"{report_type} Reports ({report_type_total_count})"
-        final_message.append(report_type_header)
-        final_message.append("-------------------------")
-
-        for platform_name, reports in platforms.items():
-            platform_total_count = len(reports)
-            platform_header = f"Platform: {platform_name} ({platform_total_count})"
-            final_message.append(platform_header)
-            final_message.append("\n".join(reports))
-            final_message.append("")  # Extra line between platforms
-
-        final_message.append("-------------------------")
-
-    if final_message:
-        return "\n".join(final_message)
-    else:
-        return "All fields are specified for the given reports."
-
-except Exception as e:
-    # Uncomment and configure logger if needed
-    # logger.error(e)
-    raise Exception("Error from publish_sns_email: " + str(e))
-
-
-
-
 import React, { useState } from 'react';
 
 const AddAccountPage = () => {
-  const [accountNumber, setAccountNumber] = useState(''); // Replace with random generation logic
+  const [accountNumber, setAccountNumber] = useState(''); 
   const [adminCode, setAdminCode] = useState('');
   const [date, setDate] = useState(new Date().toLocaleDateString());
-  const [availableFirms, setAvailableFirms] = useState(['Firm A', 'Firm B', 'Firm C', 'Firm D', 'Firm E']);
+  const [availableFirms, setAvailableFirms] = useState([
+    { id: 1, name: 'Firm A' },
+    { id: 2, name: 'Firm B' },
+    { id: 3, name: 'Firm C' },
+    { id: 4, name: 'Firm D' },
+    { id: 5, name: 'Firm E' }
+  ]);
   const [attachedFirms, setAttachedFirms] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAvailableFirms, setSelectedAvailableFirms] = useState([]);
@@ -61,28 +18,48 @@ const AddAccountPage = () => {
 
   // Function to move selected firms from available to attached
   const attachFirms = () => {
-    setAttachedFirms([...attachedFirms, ...selectedAvailableFirms]);
-    setAvailableFirms(availableFirms.filter((firm) => !selectedAvailableFirms.includes(firm)));
+    const firmsToAttach = availableFirms.filter(firm => selectedAvailableFirms.includes(firm.id));
+    setAttachedFirms([...attachedFirms, ...firmsToAttach]);
+    setAvailableFirms(availableFirms.filter(firm => !selectedAvailableFirms.includes(firm.id)));
     setSelectedAvailableFirms([]);
   };
 
   // Function to move selected firms from attached to available
   const removeFirms = () => {
-    setAvailableFirms([...availableFirms, ...selectedAttachedFirms]);
-    setAttachedFirms(attachedFirms.filter((firm) => !selectedAttachedFirms.includes(firm)));
+    const firmsToRemove = attachedFirms.filter(firm => selectedAttachedFirms.includes(firm.id));
+    setAvailableFirms([...availableFirms, ...firmsToRemove]);
+    setAttachedFirms(attachedFirms.filter(firm => !selectedAttachedFirms.includes(firm.id)));
     setSelectedAttachedFirms([]);
   };
 
   // Filter available firms based on search term
   const filteredFirms = availableFirms.filter((firm) =>
-    firm.toLowerCase().includes(searchTerm.toLowerCase())
+    firm.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleFirmClick = (firmId, list) => {
+    if (list === 'available') {
+      setSelectedAvailableFirms(prev =>
+        prev.includes(firmId) ? prev.filter(id => id !== firmId) : [...prev, firmId]
+      );
+    } else {
+      setSelectedAttachedFirms(prev =>
+        prev.includes(firmId) ? prev.filter(id => id !== firmId) : [...prev, firmId]
+      );
+    }
+  };
 
   const handleClear = () => {
     setAccountNumber('');
     setAdminCode('');
     setAttachedFirms([]);
-    setAvailableFirms(['Firm A', 'Firm B', 'Firm C', 'Firm D', 'Firm E']);
+    setAvailableFirms([
+      { id: 1, name: 'Firm A' },
+      { id: 2, name: 'Firm B' },
+      { id: 3, name: 'Firm C' },
+      { id: 4, name: 'Firm D' },
+      { id: 5, name: 'Firm E' }
+    ]);
     setSearchTerm('');
   };
 
@@ -100,7 +77,7 @@ const AddAccountPage = () => {
     <div style={{ padding: '20px', maxWidth: '700px', margin: '0 auto', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
       <h2 style={{ textAlign: 'center', color: '#003C68' }}>Add Account</h2>
       
-      <div style={{ marginBottom: '15px' }}>
+      <div style={{ marginBottom: '10px' }}>
         <label>Account Number: </label>
         <input
           type="text"
@@ -110,7 +87,7 @@ const AddAccountPage = () => {
         />
       </div>
 
-      <div style={{ marginBottom: '15px' }}>
+      <div style={{ marginBottom: '10px' }}>
         <label>Admin Code: </label>
         <input
           type="text"
@@ -120,58 +97,90 @@ const AddAccountPage = () => {
         />
       </div>
 
-      <div style={{ marginBottom: '15px' }}>
+      <div style={{ marginBottom: '10px' }}>
         <label>Date: </label>
         <input type="text" value={date} readOnly style={{ width: '100%', padding: '8px', margin: '5px 0', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }} />
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
-        <div style={{ width: '40%', backgroundColor: '#fff', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}>
-          <h3 style={{ marginBottom: '10px', fontSize: '16px' }}>Available Firms</h3>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '10px', marginTop: '10px' }}>
+        <div style={{ backgroundColor: '#fff', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', height: '250px', overflow: 'hidden' }}>
+          <h3 style={{ marginBottom: '8px', fontSize: '16px' }}>Available Firms</h3>
           <input
             type="text"
             placeholder="Search firms..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ width: '100%', padding: '8px', marginBottom: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+            style={{ width: '100%', padding: '8px', marginBottom: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
           />
-          <select
-            multiple
-            style={{ width: '100%', height: '150px', borderRadius: '4px', border: '1px solid #ccc', padding: '8px' }}
-            value={selectedAvailableFirms}
-            onChange={(e) => setSelectedAvailableFirms(Array.from(e.target.selectedOptions, option => option.value))}
-          >
-            {filteredFirms.map((firm, index) => (
-              <option key={index} value={firm}>
-                {firm}
-              </option>
+          <div style={{ height: '180px', overflowY: 'auto', paddingRight: '5px' }}>
+            {filteredFirms.map((firm) => (
+              <div
+                key={firm.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '5px',
+                  cursor: 'pointer',
+                  backgroundColor: selectedAvailableFirms.includes(firm.id) ? '#e0f7fa' : 'transparent',
+                  padding: '5px',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}
+                onClick={() => handleFirmClick(firm.id, 'available')}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedAvailableFirms.includes(firm.id)}
+                  onChange={() => handleFirmClick(firm.id, 'available')}
+                  style={{ marginRight: '8px' }}
+                />
+                {firm.name}
+              </div>
             ))}
-          </select>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '0 10px' }}>
-          <button onClick={attachFirms} style={{ marginBottom: '10px', padding: '6px 12px', backgroundColor: '#003C68', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>→</button>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <button onClick={attachFirms} style={{ marginBottom: '8px', padding: '6px 12px', backgroundColor: '#003C68', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>→</button>
           <button onClick={removeFirms} style={{ padding: '6px 12px', backgroundColor: '#003C68', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>←</button>
         </div>
 
-        <div style={{ width: '40%', backgroundColor: '#fff', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}>
-          <h3 style={{ marginBottom: '10px', fontSize: '16px' }}>Attached Firms</h3>
-          <select
-            multiple
-            style={{ width: '100%', height: '150px', borderRadius: '4px', border: '1px solid #ccc', padding: '8px' }}
-            value={selectedAttachedFirms}
-            onChange={(e) => setSelectedAttachedFirms(Array.from(e.target.selectedOptions, option => option.value))}
-          >
-            {attachedFirms.map((firm, index) => (
-              <option key={index} value={firm}>
-                {firm}
-              </option>
+        <div style={{ backgroundColor: '#fff', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', height: '250px', overflow: 'hidden' }}>
+          <h3 style={{ marginBottom: '8px', fontSize: '16px' }}>Attached Firms</h3>
+          <div style={{ height: '220px', overflowY: 'auto', paddingRight: '5px' }}>
+            {attachedFirms.map((firm) => (
+              <div
+                key={firm.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '5px',
+                  cursor: 'pointer',
+                  backgroundColor: selectedAttachedFirms.includes(firm.id) ? '#e0f7fa' : 'transparent',
+                  padding: '5px',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}
+                onClick={() => handleFirmClick(firm.id, 'attached')}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedAttachedFirms.includes(firm.id)}
+                  onChange={() => handleFirmClick(firm.id, 'attached')}
+                  style={{ marginRight: '8px' }}
+                />
+                {firm.name}
+              </div>
             ))}
-          </select>
+          </div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px' }}>
         <button onClick={handleClear} style={{ padding: '10px 20px', backgroundColor: '#003C68', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Clear</button>
         <button onClick={handleSubmit} style={{ padding: '10px 20px', backgroundColor: '#003C68', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Add Account</button>
       </div>
